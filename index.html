@@ -102,8 +102,7 @@
             <button data-value="cosh" data-second-value="acosh" class="calculator-button flex items-center justify-center rounded-full h-12 w-12 md:h-16 md:w-16 text-sm md:text-base font-medium transition-all duration-150 ease-in-out bg-purple-600 text-white hover:bg-purple-700 hover:scale-105 active:scale-95">cosh</button>
             <button data-value="tanh" data-second-value="atanh" class="calculator-button flex items-center justify-center rounded-full h-12 w-12 md:h-16 md:w-16 text-sm md:text-base font-medium transition-all duration-150 ease-in-out bg-purple-600 text-white hover:bg-purple-700 hover:scale-105 active:scale-95">tanh</button>
             <button data-value="PI" class="calculator-button flex items-center justify-center rounded-full h-12 w-12 md:h-16 md:w-16 text-lg md:text-xl font-medium transition-all duration-150 ease-in-out bg-slate-700 text-slate-300 hover:bg-slate-600 hover:scale-105 active:scale-95">π</button>
-            <button data-value="Rand" class="calculator-button flex items-center justify-center rounded-full h-12 w-12 md:h-16 md:w-16 text-base md:text-lg font-medium transition-all duration-150 ease-in-out bg-slate-700 text-slate-300 hover:bg-slate-600 hover:scale-105 active:scale-95">Rand</button>
-            <button data-value="/" class="calculator-button flex items-center justify-center rounded-full h-12 w-12 md:h-16 md:w-16 text-lg md:text-xl font-medium transition-all duration-150 ease-in-out bg-indigo-600 text-white hover:bg-indigo-700 hover:scale-105 active:scale-95">/</button>
+            <button id="decimalModeButton" data-value="DecimalMode" class="calculator-button flex items-center justify-center rounded-full h-12 w-12 md:h-16 md:w-16 text-sm md:text-xs font-medium transition-all duration-150 ease-in-out bg-slate-700 text-slate-300 hover:bg-slate-600 hover:scale-105 active:scale-95 p-1">F</button> <button data-value="/" class="calculator-button flex items-center justify-center rounded-full h-12 w-12 md:h-16 md:w-16 text-lg md:text-xl font-medium transition-all duration-150 ease-in-out bg-indigo-600 text-white hover:bg-indigo-700 hover:scale-105 active:scale-95">/</button>
             <button data-value="C" class="calculator-button flex items-center justify-center rounded-full h-12 w-12 md:h-16 md:w-16 text-lg md:text-xl font-medium transition-all duration-150 ease-in-out bg-rose-600 text-white hover:bg-rose-700 hover:scale-105 active:scale-95">C</button>
             <button data-value="7" class="calculator-button flex items-center justify-center rounded-full h-12 w-12 md:h-16 md:w-16 text-lg md:text-xl font-medium transition-all duration-150 ease-in-out bg-slate-500 text-white hover:bg-slate-400 hover:scale-105 active:scale-95">7</button>
             <button data-value="8" class="calculator-button flex items-center justify-center rounded-full h-12 w-12 md:h-16 md:w-16 text-lg md:text-xl font-medium transition-all duration-150 ease-in-out bg-slate-500 text-white hover:bg-slate-400 hover:scale-105 active:scale-95">8</button>
@@ -141,6 +140,7 @@
             const buttons = document.querySelectorAll('.calculator-grid button');
             const secondFnButton = document.getElementById('secondFnButton');
             const radDegButton = document.getElementById('radDegButton');
+            const decimalModeButton = document.getElementById('decimalModeButton'); // New button
             const messageBoxOverlay = document.getElementById('messageBoxOverlay');
             const messageBoxText = document.getElementById('messageBoxText');
             const messageBoxOkButton = document.getElementById('messageBoxOkButton');
@@ -149,7 +149,11 @@
             let memory = 0;
             let isSecondFunctionActive = false;
             let angleMode = 'Rad'; // Rad or Deg
-            let justEvaluated = false; // Flag to clear display on next number after '='
+            let justEvaluated = false; 
+            
+            const decimalModes = ['F', '0', '2', '4', '6', '8']; // F for Float, others for fixed
+            let currentDecimalModeIndex = 0; // Index for decimalModes array
+            let decimalPlaces = decimalModes[currentDecimalModeIndex]; // 'F' initially
 
             // --- Custom Message Box ---
             function showMessage(message) {
@@ -163,7 +167,7 @@
             // --- Helper Functions ---
             function factorial(n) {
                 if (n < 0) return NaN; 
-                if (Number.isInteger(n) === false) return NaN; // Factorial only for integers
+                if (Number.isInteger(n) === false) return NaN; 
                 if (n === 0 || n === 1) return 1;
                 if (n > 170) return Infinity; 
                 let result = 1;
@@ -192,9 +196,24 @@
                 return Math.pow(value, 1 / n);
             }
 
+            function formatResult(value) {
+                const num = Number(value);
+                if (isNaN(num)) return "Error";
+                if (decimalPlaces === 'F') {
+                    return String(num);
+                } else {
+                    return num.toFixed(parseInt(decimalPlaces));
+                }
+            }
 
             function updateDisplay() {
-                display.value = currentExpression || '0';
+                if (justEvaluated && currentExpression !== '') {
+                     // If it was just evaluated, currentExpression holds the raw result.
+                     // Format it before displaying.
+                    display.value = formatResult(currentExpression);
+                } else {
+                    display.value = currentExpression || '0';
+                }
                 display.scrollLeft = display.scrollWidth;
             }
             
@@ -227,31 +246,44 @@
             }
             
             function getExpressionForEval(){
-                 return currentExpression
+                 // Convert display-friendly trig/log functions to Math object calls for eval
+                let expr = currentExpression
                     .replace(/π/g, 'Math.PI')
-                    .replace(/(?<!Math\.)e(?![+\-\d.])/g, 'Math.E') // Replace 'e' constant, avoid 'e' in words like 'degree' or scientific notation like 1e+5
+                    .replace(/(?<![a-zA-Z0-9_])e(?![+\-\d.a-zA-Z])/g, 'Math.E') // Target 'e' constant specifically
                     .replace(/√\(/g, 'Math.sqrt(')
                     .replace(/∛\(/g, 'Math.cbrt(')
                     .replace(/ln\(/g, 'Math.log(')
                     .replace(/log₁₀\(/g, 'Math.log10(')
-                    .replace(/log₂\(/g, 'log2(')
-                    .replace(/(\d*\.?\d+)!/g, (match, num) => `factorial(${num})`)
-                    .replace(/\^/g, '**');
+                    .replace(/log₂\(/g, 'log2(');
+
+                // Handle trig functions with angle mode
+                const trigFuncs = {
+                    'sin': 'Math.sin', 'cos': 'Math.cos', 'tan': 'Math.tan',
+                    'asin': 'Math.asin', 'acos': 'Math.acos', 'atan': 'Math.atan'
+                };
+                for (const func in trigFuncs) {
+                    const regex = new RegExp(`${func}\\(`, 'g'); // Matches "sin(", "cos(", etc.
+                    expr = expr.replace(regex, `${trigFuncs[func]}(`);
+                }
+                
+                // Factorial and power
+                expr = expr.replace(/(\d*\.?\d+)!/g, (match, num) => `factorial(${num})`)
+                           .replace(/\^/g, '**');
+                return expr;
             }
 
 
-            function handleOperation(buttonElement) { // Changed 'op' to 'buttonElement' for clarity
-                let actionValue = buttonElement.dataset.value; // The primary action
-                let visualLabel = buttonElement.innerHTML; // What the user sees
+            function handleOperation(buttonElement) { 
+                let actionValue = buttonElement.dataset.value; 
+                let visualLabel = buttonElement.innerHTML; 
 
                 if (isSecondFunctionActive && buttonElement.dataset.secondValue) {
                     actionValue = buttonElement.dataset.secondValue;
                     visualLabel = buttonElement.dataset.secondLabelText || actionValue; 
                 }
 
-
                 if (justEvaluated && 
-                    !['+', '-', '*', '/', '%', '**', '**(1/', ')', '='].includes(actionValue) && // Check against actionValue
+                    !['+', '-', '*', '/', '%', '**', '**(1/', ')', '=', 'DecimalMode'].includes(actionValue) && 
                     !actionValue.startsWith('Math.') && !actionValue.startsWith('√') && !actionValue.startsWith('∛') &&
                     !actionValue.startsWith('ln') && !actionValue.startsWith('log') 
                    ) {
@@ -261,16 +293,22 @@
                         currentExpression = '';
                      }
                 }
-                justEvaluated = false;
+                // Do not set justEvaluated to false if it's a mode change like DecimalMode
+                if (actionValue !== 'DecimalMode') {
+                    justEvaluated = false;
+                }
 
 
                 switch (actionValue) {
                     case 'C':
                         currentExpression = '';
+                        justEvaluated = false;
                         break;
                     case 'Backspace':
-                        // More robust backspace for functions like Math.sin( or constants like Math.PI
-                        if (currentExpression.endsWith('(') && currentExpression.length > 1) {
+                        if (justEvaluated) { // If backspacing a result, clear it and start fresh
+                            currentExpression = '';
+                            justEvaluated = false;
+                        } else if (currentExpression.endsWith('(') && currentExpression.length > 1) {
                             const funcPatterns = ['Math.sin(', 'Math.cos(', 'Math.tan(', 'Math.asin(', 'Math.acos(', 'Math.atan(', 'Math.sinh(', 'Math.cosh(', 'Math.tanh(', 'Math.asinh(', 'Math.acosh(', 'Math.atanh(', 'Math.sqrt(', 'Math.cbrt(', 'Math.log(', 'Math.log10(', 'log2(', 'factorial('];
                             let foundFunc = false;
                             for (const pattern of funcPatterns) {
@@ -305,10 +343,9 @@
                         const lastChar = currentExpression.slice(-1);
                         if (isOperator(lastChar) || lastChar === '(') {
                             if (isOperator(lastChar) && actionValue !== '-' && currentExpression.length > 1 && !currentExpression.endsWith('(')) {
-                                // Check if previous char is also an operator (e.g. 5*- to prevent 5*)
                                 if(!isOperator(currentExpression.slice(-2, -1))){
                                      currentExpression = currentExpression.slice(0, -1) + actionValue; 
-                                } else if (actionValue === '-'){ // allow 5*-(
+                                } else if (actionValue === '-'){ 
                                      appendToExpression(actionValue);
                                 }
                             } else if (actionValue === '-' && (lastChar === '(' || isOperator(lastChar))) { 
@@ -325,21 +362,44 @@
                         try {
                             let evalFriendlyExpression = getExpressionForEval();
                             
-                            // Final check for open parentheses before eval
                             let openParenCount = (evalFriendlyExpression.match(/\(/g) || []).length;
                             let closeParenCount = (evalFriendlyExpression.match(/\)/g) || []).length;
                             while(openParenCount > closeParenCount){
                                 evalFriendlyExpression += ')';
                                 closeParenCount++;
                             }
+                            
+                            // Angle conversions for trig functions within eval
+                            const trigFuncsForEval = ['Math.sin', 'Math.cos', 'Math.tan'];
+                            trigFuncsForEval.forEach(funcName => {
+                                const regex = new RegExp(funcName.replace('.', '\\.') + '\\(([^)]+)\\)', 'g');
+                                evalFriendlyExpression = evalFriendlyExpression.replace(regex, (match, arg) => {
+                                    if (angleMode === 'Deg') {
+                                        return `${funcName}(toRadians(${arg}))`;
+                                    }
+                                    return `${funcName}(${arg})`; // Already in radians or doesn't need conversion
+                                });
+                            });
+
+                            const inverseTrigFuncsForEval = ['Math.asin', 'Math.acos', 'Math.atan'];
+                            inverseTrigFuncsForEval.forEach(funcName => {
+                                 const regex = new RegExp(funcName.replace('.', '\\.') + '\\(([^)]+)\\)', 'g');
+                                 evalFriendlyExpression = evalFriendlyExpression.replace(regex, (match, arg) => {
+                                    if (angleMode === 'Deg') {
+                                        return `toDegrees(${funcName}(${arg}))`;
+                                    }
+                                    return `${funcName}(${arg})`;
+                                 });
+                            });
+
 
                             const result = eval(evalFriendlyExpression);
                             if (isNaN(result) || !isFinite(result)) {
                                 showMessage('Error: Result is undefined or infinite');
-                                currentExpression = ''; // Keep expression for correction if desired, or clear
+                                currentExpression = ''; 
                             } else {
-                                currentExpression = String(result);
-                                justEvaluated = true;
+                                currentExpression = String(result); // Store raw result
+                                justEvaluated = true; // Display will format it
                             }
                         } catch (e) {
                             showMessage('Error: Invalid expression');
@@ -356,8 +416,16 @@
                     case 'PI': appendToExpression('π'); break;
                     case 'E': appendToExpression('e'); break; 
                     case 'EE': appendToExpression('e'); break; 
-                    case 'Rand': currentExpression = String(Math.random()); justEvaluated = true; break;
-                    case 'Rad': // This is the data-value for the Rad/Deg button
+                    // case 'Rand': currentExpression = String(Math.random()); justEvaluated = true; break; // Replaced by DecimalMode
+                    case 'DecimalMode':
+                        currentDecimalModeIndex = (currentDecimalModeIndex + 1) % decimalModes.length;
+                        decimalPlaces = decimalModes[currentDecimalModeIndex];
+                        decimalModeButton.textContent = decimalPlaces === 'F' ? 'F' : `.${decimalPlaces}`;
+                        if (justEvaluated && currentExpression !== '') { // Re-format displayed result if mode changes
+                            // No need to call updateDisplay() directly, it's called at the end of handleOperation
+                        }
+                        break;
+                    case 'Rad': 
                         angleMode = angleMode === 'Rad' ? 'Deg' : 'Rad';
                         radDegButton.textContent = angleMode;
                         break;
@@ -366,15 +434,15 @@
                     case 'x^y': appendToExpression('**'); break; 
                     case 'e^x': 
                         currentExpression = `Math.exp(${getExpressionForEval() || '0'})`;
-                        handleOperation({dataset:{value:'='}}); // Evaluate immediately
+                        handleOperation({dataset:{value:'='}}); 
                         break;
                     case '10^x': 
                         currentExpression = `Math.pow(10, ${getExpressionForEval() || '0'})`;
-                        handleOperation({dataset:{value:'='}}); // Evaluate immediately
+                        handleOperation({dataset:{value:'='}}); 
                         break;
                     case '1/x': 
                         currentExpression = `(1/(${getExpressionForEval() || '0'}))`; 
-                        handleOperation({dataset:{value:'='}}); // Evaluate immediately
+                        handleOperation({dataset:{value:'='}}); 
                         break;
                     case 'sqrt': appendToExpression('√('); break;
                     case 'cbrt': appendToExpression('∛('); break;
@@ -387,7 +455,7 @@
                         if (numForFactorial) {
                              currentExpression = currentExpression.slice(0, -numForFactorial.length) + `${numForFactorial}!`;
                         } else {
-                             currentExpression += '!'; // Or handle error
+                             currentExpression += '!'; 
                         }
                         break; 
                     
@@ -397,31 +465,27 @@
                     case 'sinh': case 'asinh':
                     case 'cosh': case 'acosh':
                     case 'tanh': case 'atanh':
-                        let mathFnPrefix = actionValue.startsWith('a') ? `Math.a${actionValue.substring(1)}` : `Math.${actionValue}`;
-                        // Correcting for Math object's actual hyperbolic inverse names
-                        if (actionValue === 'asinh') mathFnPrefix = 'Math.asinh';
-                        if (actionValue === 'acosh') mathFnPrefix = 'Math.acosh';
-                        if (actionValue === 'atanh') mathFnPrefix = 'Math.atanh';
-                        appendToExpression(`${mathFnPrefix}(`);
+                        // Use the visual label (sin, cos) for appending, eval will handle Math. prefix
+                        appendToExpression(`${visualLabel}(`);
                         break;
                     
                     case '%':
                         const lastNumStrPerc = getLastNumberSegment();
                         if (lastNumStrPerc) {
                             const num = parseFloat(lastNumStrPerc);
-                            // Check if expression before lastNumStrPerc ends with an operator and another number (e.g. 100+10%)
                             const exprBeforeLastNum = currentExpression.slice(0, -lastNumStrPerc.length);
-                            const matchPrevOpNum = exprBeforeLastNum.match(/(-?\d*\.?\d+(?:e[+\-]?\d+)?)([\+\-\*\/])$/);
+                            const matchPrevOpNum = exprBeforeLastNum.match(/(-?(?:Math\.E|Math\.PI|\d*\.?\d+(?:e[+\-]?\d+)?))([\+\-\*\/])$/i); // Added Math.E/PI
                             if(matchPrevOpNum){
-                                const prevNum = parseFloat(matchPrevOpNum[1]);
+                                const prevNumRaw = matchPrevOpNum[1].replace('Math.PI', Math.PI).replace('Math.E', Math.E);
+                                const prevNum = parseFloat(prevNumRaw);
                                 const operator = matchPrevOpNum[2];
                                 const percentageVal = prevNum * (num / 100);
-                                currentExpression = exprBeforeLastNum.slice(0, -matchPrevOpNum[0].length) + String(prevNum) + operator + String(percentageVal);
+                                currentExpression = exprBeforeLastNum.slice(0, exprBeforeLastNum.length - matchPrevOpNum[0].length) + String(prevNum) + operator + String(percentageVal);
 
-                            } else { // Simple percentage of the last number
+                            } else { 
                                 currentExpression = currentExpression.substring(0, currentExpression.length - lastNumStrPerc.length) + String(num / 100);
                             }
-                        } else { // Percentage of current expression if it evaluates to a number
+                        } else { 
                             try {
                                 const evalResult = eval(getExpressionForEval() || '0');
                                 currentExpression = String(evalResult / 100);
@@ -429,17 +493,17 @@
                                 showMessage("Error in % calculation");
                             }
                         }
-                        justEvaluated = true; // Percentage usually implies end of current sub-calc
+                        justEvaluated = true; 
                         break;
                     case 'ToggleSign':
                         const lastNumSign = getLastNumberSegment();
                         if (lastNumSign) {
                             const numSegment = currentExpression.slice(-lastNumSign.length);
-                            if (numSegment.startsWith('(-') && numSegment.endsWith(')')) { // e.g. (-5) -> 5
+                            if (numSegment.startsWith('(-') && numSegment.endsWith(')')) { 
                                 currentExpression = currentExpression.slice(0, -lastNumSign.length) + numSegment.substring(2, numSegment.length - 1);
-                            } else if (numSegment.startsWith('-')) { // e.g. -5 -> 5
+                            } else if (numSegment.startsWith('-')) { 
                                 currentExpression = currentExpression.slice(0, -lastNumSign.length) + numSegment.substring(1);
-                            } else { // e.g. 5 -> (-5)
+                            } else { 
                                 currentExpression = currentExpression.slice(0, -lastNumSign.length) + `(-${numSegment})`;
                             }
                         } else if (currentExpression && currentExpression !== '0') {
@@ -452,13 +516,7 @@
                            }
                         }
                         break;
-                    // 2nd button is handled by its own event listener primarily for label toggling
-                    // but its data-value="2nd" is caught here if not handled by its specific listener.
-                    // This case '2nd' here is more of a fallback, actual logic is in the separate listener.
                     case '2nd': 
-                        // This case is primarily handled by the dedicated 'secondButtonElement' listener
-                        // to toggle 'isSecondFunctionActive' and update labels.
-                        // No direct expression change here.
                         break;
 
                 }
@@ -468,9 +526,9 @@
             buttons.forEach(button => {
                 const value = button.dataset.value;
                 const secondValue = button.dataset.secondValue;
-                let primaryHTML = button.innerHTML; // Keep the rich HTML for primary
+                let primaryHTML = button.innerHTML; 
                 
-                button.dataset.primaryLabel = primaryHTML; // Store it
+                button.dataset.primaryLabel = primaryHTML; 
 
                 if (secondValue) {
                     let secondLabelHTML = secondValue; 
@@ -490,26 +548,26 @@
                     else if (value === "sinh" && secondValue === "asinh") secondLabelHTML = "sinh<sup>-1</sup>";
                     else if (value === "cosh" && secondValue === "acosh") secondLabelHTML = "cosh<sup>-1</sup>";
                     else if (value === "tanh" && secondValue === "atanh") secondLabelHTML = "tanh<sup>-1</sup>";
-                    button.dataset.secondLabelText = secondLabelHTML; // Store the generated HTML for 2nd
+                    button.dataset.secondLabelText = secondLabelHTML; 
                 }
-                button.addEventListener('click', () => handleOperation(button));
+                // Special handling for the decimal mode button to avoid its click being processed by the generic handler if not needed
+                if (button.id !== 'decimalModeButton' && button.id !== 'secondFnButton' && button.id !== 'radDegButton') {
+                     button.addEventListener('click', () => handleOperation(button));
+                }
             });
             
-            const secondButtonElement = document.getElementById('secondFnButton');
-            if (secondButtonElement) { // Ensure button exists
-                secondButtonElement.addEventListener('click', () => {
+            if (secondFnButton) { 
+                secondFnButton.addEventListener('click', () => { // Changed from handleOperation to direct logic
                     isSecondFunctionActive = !isSecondFunctionActive;
-                    secondButtonElement.classList.toggle('bg-sky-500', isSecondFunctionActive); 
-                    secondButtonElement.classList.toggle('text-white', isSecondFunctionActive);
-                    secondButtonElement.classList.toggle('bg-slate-700', !isSecondFunctionActive);
-                    secondButtonElement.classList.toggle('text-slate-300', !isSecondFunctionActive);
+                    secondFnButton.classList.toggle('bg-sky-500', isSecondFunctionActive); 
+                    secondFnButton.classList.toggle('text-white', isSecondFunctionActive);
+                    secondFnButton.classList.toggle('bg-slate-700', !isSecondFunctionActive);
+                    secondFnButton.classList.toggle('text-slate-300', !isSecondFunctionActive);
 
                     buttons.forEach(btn => {
                         if (btn.id === 'secondFnButton') return; 
-
-                        const primaryLabel = btn.dataset.primaryLabel; // This is HTML
-                        const secondLabel = btn.dataset.secondLabelText; // This is also HTML
-
+                        const primaryLabel = btn.dataset.primaryLabel; 
+                        const secondLabel = btn.dataset.secondLabelText; 
                         if (isSecondFunctionActive && secondLabel) {
                             btn.innerHTML = secondLabel;
                         } else if (primaryLabel) {
@@ -518,6 +576,14 @@
                     });
                 });
             }
+
+            if (radDegButton) {
+                radDegButton.addEventListener('click', () => handleOperation(radDegButton));
+            }
+            if (decimalModeButton) {
+                decimalModeButton.addEventListener('click', () => handleOperation(decimalModeButton));
+            }
+
             updateDisplay(); 
         });
     </script>
