@@ -9,84 +9,117 @@
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            -webkit-tap-highlight-color: transparent; /* Disable tap highlight on mobile */
+            -webkit-tap-highlight-color: transparent; 
         }
+
         .calculator-grid button {
-            transition: background-color 0.1s ease-in-out, transform 0.05s ease-in-out;
+            transition: background-color 0.15s ease-in-out, transform 0.1s ease-in-out, box-shadow 0.15s ease-in-out, filter 0.1s ease-in-out;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+            will-change: transform, box-shadow, filter; 
+        }
+        .calculator-grid button:hover {
+            transform: translateY(-2px); 
+            box-shadow: 0 5px 10px rgba(0,0,0,0.25); 
+            filter: brightness(1.15); 
         }
         .calculator-grid button:active {
-            transform: scale(0.95);
+            transform: scale(0.95) translateY(1px); 
+            box-shadow: 0 1px 2px rgba(0,0,0,0.2); 
+            filter: brightness(0.85); 
+        }
+
+        .display-area {
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.2); 
         }
         .display-area::-webkit-scrollbar {
             height: 4px;
         }
         .display-area::-webkit-scrollbar-thumb {
-            background-color: #4a5568; /* gray-700 */
+            background-color: #475569; /* slate-600 */
             border-radius: 2px;
         }
         .display-area::-webkit-scrollbar-track {
-            background-color: #2d3748; /* gray-800 */
+            background-color: #1e293b; /* slate-800 */
         }
-        /* Ensure sup text in buttons is aligned well */
+        #display-text.display-text-animate { 
+            animation: subtlePop 0.2s ease-out;
+        }
+
+        @keyframes subtlePop {
+            0% { transform: scale(0.98) translateY(1px); opacity: 0.8; }
+            70% { transform: scale(1.01); opacity: 1; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
         .calculator-grid button sup {
-            font-size: 0.6em; /* Adjust size of superscript */
-            top: -0.5em; /* Adjust vertical alignment */
+            font-size: 0.6em;
+            top: -0.6em; 
+            position: relative;
+            display: inline-block;
+            line-height: 1; 
+        }
+        .hidden { /* Tailwind's hidden class */
+            display: none !important;
         }
     </style>
 </head>
-<body class="bg-gray-900 flex items-center justify-center min-h-screen p-4">
-    <div class="calculator-container bg-gray-800 shadow-2xl rounded-xl p-6 w-full max-w-sm">
-        <div id="display" class="display-area bg-gray-900 text-white text-5xl font-light text-right p-6 mb-6 rounded-lg break-all h-24 flex items-end justify-end overflow-x-auto">
+<body class="bg-slate-900 flex items-center justify-center min-h-screen p-4">
+    <div class="calculator-container bg-slate-800 shadow-2xl rounded-xl p-6 w-full max-w-sm">
+        <div id="display-container" class="display-area bg-slate-950 text-white text-5xl font-light text-right p-6 mb-6 rounded-lg break-all h-24 flex items-end justify-end overflow-x-auto">
             <span id="display-text">0</span>
         </div>
 
         <div class="calculator-grid grid grid-cols-4 gap-3">
-            <button data-action="toggle-angle-mode" class="btn-sci bg-gray-600 hover:bg-gray-500 text-white text-lg font-medium py-4 rounded-lg">DEG</button>
-            <button data-sci-op="sin" class="btn-sci bg-gray-600 hover:bg-gray-500 text-white text-xl font-medium py-4 rounded-lg">sin</button>
-            <button data-sci-op="cos" class="btn-sci bg-gray-600 hover:bg-gray-500 text-white text-xl font-medium py-4 rounded-lg">cos</button>
-            <button data-sci-op="tan" class="btn-sci bg-gray-600 hover:bg-gray-500 text-white text-xl font-medium py-4 rounded-lg">tan</button>
+            <button data-action="toggle-calculator-mode" id="modeToggleButton" class="col-span-4 bg-indigo-600 hover:bg-indigo-700 text-white text-lg font-medium py-3 rounded-lg mb-2">Scientific Mode</button>
 
-            <button data-operator="power" class="btn-sci bg-gray-600 hover:bg-gray-500 text-white text-xl font-medium py-4 rounded-lg">x<sup>y</sup></button>
-            <button data-sci-op="log" class="btn-sci bg-gray-600 hover:bg-gray-500 text-white text-xl font-medium py-4 rounded-lg">log</button>
-            <button data-sci-op="ln" class="btn-sci bg-gray-600 hover:bg-gray-500 text-white text-xl font-medium py-4 rounded-lg">ln</button>
-            <button data-sci-op="sqrt" class="btn-sci bg-gray-600 hover:bg-gray-500 text-white text-xl font-medium py-4 rounded-lg">√</button>
+            <button data-action="toggle-angle-mode" class="scientific-feature btn-sci bg-slate-600 text-white text-lg font-medium py-4 rounded-lg">DEG</button>
+            <button data-sci-op="sin" class="scientific-feature btn-sci bg-slate-600 text-white text-xl font-medium py-4 rounded-lg">sin</button>
+            <button data-sci-op="cos" class="scientific-feature btn-sci bg-slate-600 text-white text-xl font-medium py-4 rounded-lg">cos</button>
+            <button data-sci-op="tan" class="scientific-feature btn-sci bg-slate-600 text-white text-xl font-medium py-4 rounded-lg">tan</button>
+
+            <button data-operator="power" class="scientific-feature btn-sci bg-slate-600 text-white text-xl font-medium py-4 rounded-lg">x<sup>y</sup></button>
+            <button data-sci-op="log" class="scientific-feature btn-sci bg-slate-600 text-white text-xl font-medium py-4 rounded-lg">log</button>
+            <button data-sci-op="ln" class="scientific-feature btn-sci bg-slate-600 text-white text-xl font-medium py-4 rounded-lg">ln</button>
+            <button data-sci-op="sqrt" class="scientific-feature btn-sci bg-slate-600 text-white text-xl font-medium py-4 rounded-lg">√</button>
             
-            <button data-sci-op="square" class="btn-sci bg-gray-600 hover:bg-gray-500 text-white text-xl font-medium py-4 rounded-lg">x<sup>2</sup></button>
-            <button data-sci-op="reciprocal" class="btn-sci bg-gray-600 hover:bg-gray-500 text-white text-xl font-medium py-4 rounded-lg">1/x</button>
-            <button data-constant="pi" class="btn-sci bg-gray-600 hover:bg-gray-500 text-white text-xl font-medium py-4 rounded-lg">π</button>
-            <button data-constant="e" class="btn-sci bg-gray-600 hover:bg-gray-500 text-white text-xl font-medium py-4 rounded-lg">e</button>
+            <button data-sci-op="square" class="scientific-feature btn-sci bg-slate-600 text-white text-xl font-medium py-4 rounded-lg">x<sup>2</sup></button>
+            <button data-sci-op="reciprocal" class="scientific-feature btn-sci bg-slate-600 text-white text-xl font-medium py-4 rounded-lg">1/x</button>
+            <button data-constant="pi" class="scientific-feature btn-sci bg-slate-600 text-white text-xl font-medium py-4 rounded-lg">π</button>
+            <button data-constant="e" class="scientific-feature btn-sci bg-slate-600 text-white text-xl font-medium py-4 rounded-lg">e</button>
 
-            <button data-action="clear" class="btn-special bg-red-500 hover:bg-red-600 text-white text-xl font-medium py-4 rounded-lg">AC</button>
-            <button data-action="delete" class="btn-special bg-yellow-500 hover:bg-yellow-600 text-white text-xl font-medium py-4 rounded-lg">DEL</button>
-            <button data-action="toggle-sign" class="btn-special bg-gray-500 hover:bg-gray-400 text-white text-xl font-medium py-4 rounded-lg">+/-</button>
-            <button data-action="percentage" class="btn-special bg-gray-500 hover:bg-gray-400 text-white text-xl font-medium py-4 rounded-lg">%</button>
+            <button data-action="clear" class="btn-special bg-rose-600 text-white text-xl font-medium py-4 rounded-lg">AC</button>
+            <button data-action="delete" class="btn-special bg-amber-500 text-white text-xl font-medium py-4 rounded-lg">DEL</button>
+            <button data-action="toggle-sign" class="btn-special bg-slate-500 text-white text-xl font-medium py-4 rounded-lg">+/-</button>
+            <button data-action="percentage" class="btn-special bg-slate-500 text-white text-xl font-medium py-4 rounded-lg">%</button>
             
-            <button data-number="7" class="btn-number bg-gray-700 hover:bg-gray-600 text-white text-2xl font-medium py-5 rounded-lg">7</button>
-            <button data-number="8" class="btn-number bg-gray-700 hover:bg-gray-600 text-white text-2xl font-medium py-5 rounded-lg">8</button>
-            <button data-number="9" class="btn-number bg-gray-700 hover:bg-gray-600 text-white text-2xl font-medium py-5 rounded-lg">9</button>
-            <button data-operator="divide" class="btn-operator bg-orange-500 hover:bg-orange-600 text-white text-2xl font-medium py-5 rounded-lg">/</button>
+            <button data-number="7" class="btn-number bg-slate-700 text-white text-2xl font-medium py-5 rounded-lg">7</button>
+            <button data-number="8" class="btn-number bg-slate-700 text-white text-2xl font-medium py-5 rounded-lg">8</button>
+            <button data-number="9" class="btn-number bg-slate-700 text-white text-2xl font-medium py-5 rounded-lg">9</button>
+            <button data-operator="divide" class="btn-operator bg-sky-500 text-white text-2xl font-medium py-5 rounded-lg">/</button>
 
-            <button data-number="4" class="btn-number bg-gray-700 hover:bg-gray-600 text-white text-2xl font-medium py-5 rounded-lg">4</button>
-            <button data-number="5" class="btn-number bg-gray-700 hover:bg-gray-600 text-white text-2xl font-medium py-5 rounded-lg">5</button>
-            <button data-number="6" class="btn-number bg-gray-700 hover:bg-gray-600 text-white text-2xl font-medium py-5 rounded-lg">6</button>
-            <button data-operator="multiply" class="btn-operator bg-orange-500 hover:bg-orange-600 text-white text-2xl font-medium py-5 rounded-lg">*</button>
+            <button data-number="4" class="btn-number bg-slate-700 text-white text-2xl font-medium py-5 rounded-lg">4</button>
+            <button data-number="5" class="btn-number bg-slate-700 text-white text-2xl font-medium py-5 rounded-lg">5</button>
+            <button data-number="6" class="btn-number bg-slate-700 text-white text-2xl font-medium py-5 rounded-lg">6</button>
+            <button data-operator="multiply" class="btn-operator bg-sky-500 text-white text-2xl font-medium py-5 rounded-lg">*</button>
 
-            <button data-number="1" class="btn-number bg-gray-700 hover:bg-gray-600 text-white text-2xl font-medium py-5 rounded-lg">1</button>
-            <button data-number="2" class="btn-number bg-gray-700 hover:bg-gray-600 text-white text-2xl font-medium py-5 rounded-lg">2</button>
-            <button data-number="3" class="btn-number bg-gray-700 hover:bg-gray-600 text-white text-2xl font-medium py-5 rounded-lg">3</button>
-            <button data-operator="subtract" class="btn-operator bg-orange-500 hover:bg-orange-600 text-white text-2xl font-medium py-5 rounded-lg">-</button>
+            <button data-number="1" class="btn-number bg-slate-700 text-white text-2xl font-medium py-5 rounded-lg">1</button>
+            <button data-number="2" class="btn-number bg-slate-700 text-white text-2xl font-medium py-5 rounded-lg">2</button>
+            <button data-number="3" class="btn-number bg-slate-700 text-white text-2xl font-medium py-5 rounded-lg">3</button>
+            <button data-operator="subtract" class="btn-operator bg-sky-500 text-white text-2xl font-medium py-5 rounded-lg">-</button>
 
-            <button data-number="0" class="btn-number col-span-2 bg-gray-700 hover:bg-gray-600 text-white text-2xl font-medium py-5 rounded-lg">0</button>
-            <button data-action="decimal" class="btn-number bg-gray-700 hover:bg-gray-600 text-white text-2xl font-medium py-5 rounded-lg">.</button>
-            <button data-operator="add" class="btn-operator bg-orange-500 hover:bg-orange-600 text-white text-2xl font-medium py-5 rounded-lg mr-0.5">+</button> <button data-action="calculate" class="btn-equal bg-green-500 hover:bg-green-600 text-white text-2xl font-medium py-5 rounded-lg ml-0.5 col-start-4"> =
-            </button>
+            <button data-number="0" class="btn-number col-span-2 bg-slate-700 text-white text-2xl font-medium py-5 rounded-lg">0</button>
+            <button data-action="decimal" class="btn-number bg-slate-700 text-white text-2xl font-medium py-5 rounded-lg">.</button>
+            <button data-operator="add" class="btn-operator bg-sky-500 text-white text-2xl font-medium py-5 rounded-lg">+</button>
+            <button data-action="calculate" class="btn-equal bg-emerald-500 text-white text-2xl font-medium py-5 rounded-lg">=</button>
         </div>
     </div>
 
     <script>
-        const display = document.getElementById('display-text');
+        const displaySpan = document.getElementById('display-text');
         const buttons = document.querySelector('.calculator-grid');
-        const angleModeButton = document.querySelector('[data-action="toggle-angle-mode"]');
+        const angleModeButton = document.querySelector('[data-action="toggle-angle-mode"]'); // This is a scientific feature
+        const modeToggleButton = document.getElementById('modeToggleButton');
+        const scientificButtons = document.querySelectorAll('.scientific-feature');
 
         let currentValue = '0';
         let previousValue = '';
@@ -94,23 +127,48 @@
         let waitingForSecondOperand = false;
         let justCalculated = false;
         let angleMode = 'deg'; // 'deg' or 'rad'
+        let calculatorMode = 'normal'; // 'normal' or 'scientific'
 
+        // Function to update visibility of scientific buttons based on mode
+        function updateButtonVisibility() {
+            if (calculatorMode === 'normal') {
+                scientificButtons.forEach(btn => btn.classList.add('hidden'));
+                modeToggleButton.textContent = 'Scientific Mode'; // Text indicates what it will switch TO
+            } else { // scientific mode
+                scientificButtons.forEach(btn => btn.classList.remove('hidden'));
+                modeToggleButton.textContent = 'Normal Mode'; // Text indicates what it will switch TO
+            }
+            // Ensure the angleModeButton's text is correct if it becomes visible
+            if (angleModeButton && !angleModeButton.classList.contains('hidden')) {
+                 angleModeButton.textContent = angleMode.toUpperCase();
+            }
+        }
+
+        // Function to toggle calculator mode
+        function toggleCalculatorMode() {
+            calculatorMode = calculatorMode === 'normal' ? 'scientific' : 'normal';
+            updateButtonVisibility();
+            // Optional: Reset calculator state when switching modes? For now, no.
+            // clearAll(); 
+        }
+        
         // Function to update the display
         function updateDisplay() {
             let formattedValue = currentValue;
-            const maxLength = 15; // Max characters before trying to shorten
-            if (formattedValue.length > maxLength) {
+            const maxLength = 15; 
+            if (currentValue === 'Error') {
+                formattedValue = 'Error';
+            } else if (formattedValue.length > maxLength) {
                 const num = parseFloat(formattedValue);
                 if (Math.abs(num) > 1e14 || (Math.abs(num) < 1e-6 && num !== 0)) {
                      formattedValue = num.toExponential(6);
-                } else if (String(num).length > maxLength) { // Check if it's still too long after float conversion
-                    // Attempt to round if it's a long decimal, otherwise truncate
+                } else if (String(num).length > maxLength) { 
                     if (formattedValue.includes('.')) {
                         const parts = formattedValue.split('.');
                         const decimalPartLength = parts[1].length;
-                        if (decimalPartLength > 8) { // Arbitrary precision for display
+                        if (decimalPartLength > 8) { 
                            formattedValue = num.toFixed(8);
-                           if(formattedValue.length > maxLength) { // If still too long, truncate
+                           if(formattedValue.length > maxLength) { 
                                formattedValue = formattedValue.substring(0, maxLength) + "...";
                            }
                         } else {
@@ -121,7 +179,11 @@
                     }
                 }
             }
-            display.textContent = formattedValue;
+            displaySpan.textContent = formattedValue;
+            displaySpan.classList.add('display-text-animate');
+            setTimeout(() => {
+                displaySpan.classList.remove('display-text-animate');
+            }, 200);
         }
 
         // Function to handle number input
@@ -137,7 +199,7 @@
             } else {
                 currentValue = currentValue === '0' ? number : currentValue + number;
             }
-            if (currentValue.length > 20) { // Limit internal length before calculation
+            if (currentValue.length > 20) { 
                 currentValue = currentValue.substring(0, 20);
             }
             updateDisplay();
@@ -162,15 +224,19 @@
         
         // Function to handle binary operator input (+, -, *, /, x^y)
         function handleOperator(nextOperator) {
-            if (currentValue === 'Error' && nextOperator) return; // Don't proceed if current value is an error
+            if (currentValue === 'Error' && nextOperator) return; 
+
+            // If it's a scientific operator (like power) but we are in normal mode, do nothing.
+            if (calculatorMode === 'normal' && nextOperator === 'power') return;
+
 
             const inputValue = parseFloat(currentValue);
             if (operator && !waitingForSecondOperand && !justCalculated) {
                 const result = performCalculation();
                 currentValue = String(result);
-                previousValue = String(result); // Use result for chained operations
+                previousValue = String(result); 
             } else if (justCalculated) {
-                previousValue = currentValue; // Result of previous calc is new previousValue
+                previousValue = currentValue; 
             } else {
                 previousValue = currentValue;
             }
@@ -178,33 +244,31 @@
             waitingForSecondOperand = true;
             operator = nextOperator;
             justCalculated = false;
-            // Display doesn't usually update just on operator press, but on next number or equals
         }
 
         // Function to handle unary scientific operations
         function handleUnaryOperation(operation) {
-            if (currentValue === 'Error') return;
+            if (calculatorMode === 'normal' || currentValue === 'Error') return; // Only if in scientific mode
             let value = parseFloat(currentValue);
             let result;
 
             const toRadians = (angle) => angleMode === 'deg' ? (angle * Math.PI / 180) : angle;
-            const fromRadians = (angle) => angleMode === 'deg' ? (angle * 180 / Math.PI) : angle; // if result is an angle
+            // const fromRadians = (angle) => angleMode === 'deg' ? (angle * 180 / Math.PI) : angle; // Not used for results here
 
             switch (operation) {
                 case 'sin': result = Math.sin(toRadians(value)); break;
                 case 'cos': result = Math.cos(toRadians(value)); break;
                 case 'tan':
-                    const angleDegEquivalent = angleMode === 'deg' ? value : fromRadians(value);
-                    if (Math.abs(Math.cos(toRadians(value))) < 1e-12) { // Check for tan at/near 90deg, 270deg etc.
+                    if (Math.abs(Math.cos(toRadians(value))) < 1e-12) { 
                         currentValue = 'Error'; updateDisplay(); return;
                     }
                     result = Math.tan(toRadians(value));
                     break;
-                case 'log': // base 10
+                case 'log': 
                     if (value <= 0) { currentValue = 'Error'; updateDisplay(); return; }
                     result = Math.log10(value);
                     break;
-                case 'ln': // natural log
+                case 'ln': 
                     if (value <= 0) { currentValue = 'Error'; updateDisplay(); return; }
                     result = Math.log(value);
                     break;
@@ -212,33 +276,32 @@
                     if (value < 0) { currentValue = 'Error'; updateDisplay(); return; }
                     result = Math.sqrt(value);
                     break;
-                case 'square': // x²
+                case 'square': 
                     result = Math.pow(value, 2);
                     break;
-                case 'reciprocal': // 1/x
+                case 'reciprocal': 
                     if (value === 0) { currentValue = 'Error'; updateDisplay(); return; }
                     result = 1 / value;
                     break;
-                default: return; // Should not happen
+                default: return; 
             }
 
-            // Handle very small results that should be 0 (e.g. sin(180deg))
             if (Math.abs(result) < 1e-12) result = 0;
             
             currentValue = String(result);
             justCalculated = true;
-            waitingForSecondOperand = false; // Ready for new number or operator
+            waitingForSecondOperand = false; 
             updateDisplay();
         }
 
         // Function to handle constants
         function handleConstant(constantKey) {
-            // Constants always overwrite currentValue and signal a new number input
+            if (calculatorMode === 'normal') return; // Only if in scientific mode
             switch (constantKey) {
                 case 'pi': currentValue = String(Math.PI); break;
                 case 'e': currentValue = String(Math.E); break;
             }
-            justCalculated = false; // A constant is like starting a new number
+            justCalculated = false; 
             waitingForSecondOperand = false;
             updateDisplay();
         }
@@ -250,7 +313,6 @@
             let result = 0;
 
             if (isNaN(prev) || isNaN(current)) {
-                 // If previousValue was part of an error state or not set, return current
                 return currentValue;
             }
 
@@ -262,17 +324,16 @@
                     if (current === 0) return 'Error';
                     result = prev / current;
                     break;
-                case 'power': // x^y
+                case 'power': 
+                    if (calculatorMode === 'normal') return current; // Power is scientific
                     result = Math.pow(prev, current);
                     break;
                 default: return currentValue; 
             }
             
-            // Basic rounding for display to avoid long floating point numbers
             if (String(result).includes('.') && String(result).split('.')[1].length > 10) {
                 result = parseFloat(result.toFixed(10)); 
             }
-             // Handle very small results that should be 0
             if (Math.abs(result) < 1e-12) result = 0;
 
             return String(result);
@@ -293,8 +354,6 @@
             if (currentValue === 'Error') {
                 currentValue = '0';
             } else if (justCalculated) {
-                // If DEL is pressed after a calculation, it could either clear to 0
-                // or allow editing the result. For now, let's clear to 0.
                 currentValue = '0';
                 justCalculated = false;
             } else if (currentValue.length > 1) {
@@ -310,7 +369,7 @@
             if (currentValue === '0' || currentValue === 'Error') return;
             currentValue = String(parseFloat(currentValue) * -1);
             if (justCalculated) { 
-                previousValue = currentValue; // If sign is toggled on a result, it's the new base
+                previousValue = currentValue; 
             }
             updateDisplay();
         }
@@ -326,34 +385,39 @@
                 numericValue = numericValue / 100;
             }
             currentValue = String(numericValue);
-            justCalculated = true; // Percentage often finalizes that part of expression
+            justCalculated = true; 
             updateDisplay();
         }
 
-        // Function to toggle angle mode
+        // Function to toggle angle mode (degrees/radians)
         function toggleAngleMode() {
+            if (calculatorMode === 'normal') return; // Only if in scientific mode
             angleMode = angleMode === 'deg' ? 'rad' : 'deg';
-            angleModeButton.textContent = angleMode.toUpperCase();
+            if (angleModeButton) angleModeButton.textContent = angleMode.toUpperCase();
         }
 
         // Event listener for button clicks
         buttons.addEventListener('click', (event) => {
             const { target } = event;
-            // Find the button element even if a child (like <sup>) was clicked
             const buttonElement = target.closest('button');
             if (!buttonElement) return;
 
+            // If a hidden button is somehow clicked (e.g. through rapidly changing mode), ignore
+            if (buttonElement.classList.contains('hidden')) return;
+
             const { action, number, operator: opKey, sciOp, constantKey } = buttonElement.dataset;
 
-            if (number) {
+            if (action === 'toggle-calculator-mode') {
+                toggleCalculatorMode();
+            } else if (number) {
                 inputNumber(number);
             } else if (action === 'decimal') {
                 inputDecimal();
             } else if (opKey) {
                 handleOperator(opKey);
-            } else if (sciOp) {
+            } else if (sciOp && calculatorMode === 'scientific') { // Ensure scientific mode for sci-op
                 handleUnaryOperation(sciOp);
-            } else if (constantKey) {
+            } else if (constantKey && calculatorMode === 'scientific') { // Ensure scientific mode for constants
                 handleConstant(constantKey);
             } else if (action === 'calculate') {
                 if (operator && previousValue !== '' && !waitingForSecondOperand && currentValue !== 'Error') {
@@ -362,8 +426,6 @@
                     previousValue = ''; 
                     justCalculated = true; 
                     waitingForSecondOperand = false;
-                } else if (currentValue === 'Error') {
-                    // Do nothing if trying to calculate with an error on display
                 }
                 updateDisplay();
             } else if (action === 'clear') {
@@ -374,13 +436,14 @@
                 toggleSign();
             } else if (action === 'percentage') {
                 handlePercentage();
-            } else if (action === 'toggle-angle-mode') {
+            } else if (action === 'toggle-angle-mode' && calculatorMode === 'scientific') { // Ensure scientific mode
                 toggleAngleMode();
             }
         });
         
-        // Initialize display
+        // Initialize display and button visibility
         updateDisplay();
+        updateButtonVisibility(); // Set initial visibility based on default calculatorMode
 
         // Keyboard support
         document.addEventListener('keydown', (event) => {
@@ -396,7 +459,6 @@
                 handleOperator(opMap[key]);
             } else if (key === 'Enter' || key === '=') {
                 event.preventDefault();
-                // Simulate click on equals button for consistent logic
                 const equalsButton = document.querySelector('[data-action="calculate"]');
                 if (equalsButton) equalsButton.click();
             } else if (key === 'Backspace') {
@@ -408,21 +470,21 @@
             } else if (key === '%') {
                 event.preventDefault();
                 handlePercentage();
-            } else if (key.toLowerCase() === 'p') { // Pi
-                event.preventDefault();
-                handleConstant('pi');
-            } else if (key.toLowerCase() === 'e') { // Euler's number
-                event.preventDefault();
-                // Check if it's 'e' for constant or part of scientific notation input
-                // For simplicity, map 'e' directly to the constant.
-                handleConstant('e');
-            } else if (key.toLowerCase() === 's') { // Sin
-                event.preventDefault(); handleUnaryOperation('sin');
-            } else if (key.toLowerCase() === 't') { // Tan
-                event.preventDefault(); handleUnaryOperation('tan');
-            } // Add more keyboard shortcuts if desired (e.g., 'l' for log, 'r' for sqrt)
+            } 
+            // Scientific keys only if in scientific mode
+            else if (calculatorMode === 'scientific') {
+                if (key.toLowerCase() === 'p') { 
+                    event.preventDefault(); handleConstant('pi');
+                } else if (key.toLowerCase() === 'e') { 
+                    event.preventDefault(); handleConstant('e');
+                } else if (key.toLowerCase() === 's') { 
+                    event.preventDefault(); handleUnaryOperation('sin');
+                } else if (key.toLowerCase() === 't') { 
+                    event.preventDefault(); handleUnaryOperation('tan');
+                } // Add more: 'c' for cos, 'l' for log, 'r' for sqrt, etc.
+                  // Be careful with 'c' as it's also for Clear.
+            }
         });
     </script>
 </body>
 </html>
-
