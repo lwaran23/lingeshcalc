@@ -12,25 +12,23 @@
         body {
             font-family: "Inter", "Space Grotesk", "Noto Sans", sans-serif;
             min-height: 100dvh; 
-            background-color: #000000; /* Black background for the page */
+            background-color: #000000; 
         }
         .calculator-grid {
             display: grid;
-            grid-template-columns: repeat(5, minmax(0, 1fr));
+            grid-template-columns: repeat(6, minmax(0, 1fr)); /* 6 columns */
             gap: 0.5rem; 
         }
         .calculator-button {
             transform-origin: center; 
         }
-
-        /* Custom message box for errors/alerts */
         .message-box-overlay {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.7); /* Darker overlay */
+            background-color: rgba(0, 0, 0, 0.7);
             display: flex;
             justify-content: center;
             align-items: center;
@@ -44,7 +42,7 @@
             visibility: visible;
         }
         .message-box-content {
-            background-color: #1c1c1e; /* Dark gray for message box, similar to iOS dark elements */
+            background-color: #1c1c1e; 
             color: white;
             padding: 2rem;
             border-radius: 0.75rem; 
@@ -57,7 +55,7 @@
             margin-bottom: 1rem;
         }
         .message-box-content button {
-            background-color: #f97316; /* Orange for OK button */
+            background-color: #f97316; 
             color: white;
             padding: 0.5rem 1rem;
             border-radius: 0.375rem; 
@@ -66,67 +64,85 @@
             transition: background-color 0.2s;
         }
         .message-box-content button:hover {
-            background-color: #ea580c; /* Darker orange on hover */
+            background-color: #ea580c; 
         }
-        /* Removed @apply rules as they don't work reliably with Tailwind CDN in this context */
     </style>
 </head>
 <body class="flex justify-center items-center p-2 md:p-4">
-    <div class="w-full max-w-md bg-black rounded-2xl shadow-2xl p-4 md:p-6">
-        <div class="mb-4 md:mb-6">
-            <input id="display" class="form-input flex w-full resize-none overflow-hidden rounded-lg text-right text-5xl md:text-6xl font-bold text-white focus:outline-none focus:ring-2 focus:ring-orange-500 border-none bg-black h-24 md:h-28 placeholder:text-gray-500 p-4" readonly value="0"/>
+    <div class="w-full max-w-lg bg-black rounded-2xl shadow-2xl p-3 md:p-4">
+        <div class="mb-3 md:mb-4">
+            <input id="display" class="form-input flex w-full resize-none overflow-hidden rounded-lg text-right text-4xl md:text-5xl font-bold text-white focus:outline-none focus:ring-2 focus:ring-orange-500 border-none bg-black h-20 md:h-24 placeholder:text-gray-500 p-3" readonly value="0"/>
         </div>
         <div class="calculator-grid">
-            <button data-value="(" class="calculator-button bg-zinc-800 text-white hover:bg-zinc-700 flex items-center justify-center rounded-full h-12 w-12 md:h-16 md:w-16 text-lg md:text-xl font-medium transition-all duration-150 ease-in-out hover:scale-105 active:scale-95">(</button>
-            <button data-value=")" class="calculator-button bg-zinc-800 text-white hover:bg-zinc-700 flex items-center justify-center rounded-full h-12 w-12 md:h-16 md:w-16 text-lg md:text-xl font-medium transition-all duration-150 ease-in-out hover:scale-105 active:scale-95">)</button>
-            <button data-value="mc" class="calculator-button bg-zinc-800 text-white hover:bg-zinc-700 flex items-center justify-center rounded-full h-12 w-12 md:h-16 md:w-16 text-base md:text-lg font-medium transition-all duration-150 ease-in-out hover:scale-105 active:scale-95">mc</button>
-            <button data-value="m+" class="calculator-button bg-zinc-800 text-white hover:bg-zinc-700 flex items-center justify-center rounded-full h-12 w-12 md:h-16 md:w-16 text-base md:text-lg font-medium transition-all duration-150 ease-in-out hover:scale-105 active:scale-95">m+</button>
-            <button data-value="m-" class="calculator-button bg-zinc-800 text-white hover:bg-zinc-700 flex items-center justify-center rounded-full h-12 w-12 md:h-16 md:w-16 text-base md:text-lg font-medium transition-all duration-150 ease-in-out hover:scale-105 active:scale-95">m-</button>
-            <button id="secondFnButton" data-value="2nd" class="calculator-button bg-zinc-800 text-white hover:bg-zinc-700 flex items-center justify-center rounded-full h-12 w-12 md:h-16 md:w-16 text-sm md:text-base font-medium transition-all duration-150 ease-in-out hover:scale-105 active:scale-95">2<sup>nd</sup></button>
-            <button data-value="x^2" data-second-value="x^3" class="calculator-button bg-zinc-800 text-white hover:bg-zinc-700 flex items-center justify-center rounded-full h-12 w-12 md:h-16 md:w-16 text-lg md:text-xl font-medium transition-all duration-150 ease-in-out hover:scale-105 active:scale-95">x²</button>
-            <button data-value="x^3" data-second-value="x^y" class="calculator-button bg-zinc-800 text-white hover:bg-zinc-700 flex items-center justify-center rounded-full h-12 w-12 md:h-16 md:w-16 text-lg md:text-xl font-medium transition-all duration-150 ease-in-out hover:scale-105 active:scale-95">x³</button>
-            <button data-value="x^y" data-second-value="y_sqrt_x" class="calculator-button bg-zinc-800 text-white hover:bg-zinc-700 flex items-center justify-center rounded-full h-12 w-12 md:h-16 md:w-16 text-lg md:text-xl font-medium transition-all duration-150 ease-in-out hover:scale-105 active:scale-95">xʸ</button>
-            <button data-value="e^x" data-second-value="10^x" class="calculator-button bg-zinc-800 text-white hover:bg-zinc-700 flex items-center justify-center rounded-full h-12 w-12 md:h-16 md:w-16 text-lg md:text-xl font-medium transition-all duration-150 ease-in-out hover:scale-105 active:scale-95">eˣ</button>
-            <button data-value="10^x" data-second-value="1/x" class="calculator-button bg-zinc-800 text-white hover:bg-zinc-700 flex items-center justify-center rounded-full h-12 w-12 md:h-16 md:w-16 text-lg md:text-xl font-medium transition-all duration-150 ease-in-out hover:scale-105 active:scale-95">10ˣ</button>
-            <button data-value="1/x" data-second-value="sqrt" class="calculator-button bg-zinc-800 text-white hover:bg-zinc-700 flex items-center justify-center rounded-full h-12 w-12 md:h-16 md:w-16 text-lg md:text-xl font-medium transition-all duration-150 ease-in-out hover:scale-105 active:scale-95">¹/x</button>
-            <button data-value="sqrt" data-second-value="cbrt" class="calculator-button bg-zinc-800 text-white hover:bg-zinc-700 flex items-center justify-center rounded-full h-12 w-12 md:h-16 md:w-16 text-lg md:text-xl font-medium transition-all duration-150 ease-in-out hover:scale-105 active:scale-95">√x</button>
-            <button data-value="cbrt" data-second-value="y_sqrt_x" class="calculator-button bg-zinc-800 text-white hover:bg-zinc-700 flex items-center justify-center rounded-full h-12 w-12 md:h-16 md:w-16 text-lg md:text-xl font-medium transition-all duration-150 ease-in-out hover:scale-105 active:scale-95">∛x</button>
-            <button data-value="ln" data-second-value="log10" class="calculator-button bg-zinc-800 text-white hover:bg-zinc-700 flex items-center justify-center rounded-full h-12 w-12 md:h-16 md:w-16 text-lg md:text-xl font-medium transition-all duration-150 ease-in-out hover:scale-105 active:scale-95">ln</button>
-            <button data-value="log10" data-second-value="log2" class="calculator-button bg-zinc-800 text-white hover:bg-zinc-700 flex items-center justify-center rounded-full h-12 w-12 md:h-16 md:w-16 text-base md:text-lg font-medium transition-all duration-150 ease-in-out hover:scale-105 active:scale-95">log₁₀</button>
-            <button data-value="x!" class="calculator-button bg-zinc-800 text-white hover:bg-zinc-700 flex items-center justify-center rounded-full h-12 w-12 md:h-16 md:w-16 text-lg md:text-xl font-medium transition-all duration-150 ease-in-out hover:scale-105 active:scale-95">x!</button>
-            <button data-value="sin" data-second-value="asin" class="calculator-button bg-zinc-800 text-white hover:bg-zinc-700 flex items-center justify-center rounded-full h-12 w-12 md:h-16 md:w-16 text-base md:text-lg font-medium transition-all duration-150 ease-in-out hover:scale-105 active:scale-95">sin</button>
-            <button data-value="cos" data-second-value="acos" class="calculator-button bg-zinc-800 text-white hover:bg-zinc-700 flex items-center justify-center rounded-full h-12 w-12 md:h-16 md:w-16 text-base md:text-lg font-medium transition-all duration-150 ease-in-out hover:scale-105 active:scale-95">cos</button>
-            <button data-value="tan" data-second-value="atan" class="calculator-button bg-zinc-800 text-white hover:bg-zinc-700 flex items-center justify-center rounded-full h-12 w-12 md:h-16 md:w-16 text-base md:text-lg font-medium transition-all duration-150 ease-in-out hover:scale-105 active:scale-95">tan</button>
-            <button data-value="E" class="calculator-button bg-zinc-800 text-white hover:bg-zinc-700 flex items-center justify-center rounded-full h-12 w-12 md:h-16 md:w-16 text-lg md:text-xl font-medium transition-all duration-150 ease-in-out hover:scale-105 active:scale-95">e</button>
-            <button data-value="EE" class="calculator-button bg-zinc-800 text-white hover:bg-zinc-700 flex items-center justify-center rounded-full h-12 w-12 md:h-16 md:w-16 text-base md:text-lg font-medium transition-all duration-150 ease-in-out hover:scale-105 active:scale-95">EE</button>
-            <button id="radDegButton" data-value="Rad" class="calculator-button bg-zinc-800 text-white hover:bg-zinc-700 flex items-center justify-center rounded-full h-12 w-12 md:h-16 md:w-16 text-base md:text-lg font-medium transition-all duration-150 ease-in-out hover:scale-105 active:scale-95">Rad</button>
-            <button data-value="sinh" data-second-value="asinh" class="calculator-button bg-zinc-800 text-white hover:bg-zinc-700 flex items-center justify-center rounded-full h-12 w-12 md:h-16 md:w-16 text-sm md:text-base font-medium transition-all duration-150 ease-in-out hover:scale-105 active:scale-95">sinh</button>
-            <button data-value="cosh" data-second-value="acosh" class="calculator-button bg-zinc-800 text-white hover:bg-zinc-700 flex items-center justify-center rounded-full h-12 w-12 md:h-16 md:w-16 text-sm md:text-base font-medium transition-all duration-150 ease-in-out hover:scale-105 active:scale-95">cosh</button>
-            <button data-value="tanh" data-second-value="atanh" class="calculator-button bg-zinc-800 text-white hover:bg-zinc-700 flex items-center justify-center rounded-full h-12 w-12 md:h-16 md:w-16 text-sm md:text-base font-medium transition-all duration-150 ease-in-out hover:scale-105 active:scale-95">tanh</button>
-            <button data-value="PI" class="calculator-button bg-zinc-800 text-white hover:bg-zinc-700 flex items-center justify-center rounded-full h-12 w-12 md:h-16 md:w-16 text-lg md:text-xl font-medium transition-all duration-150 ease-in-out hover:scale-105 active:scale-95">π</button>
-            <button id="decimalModeButton" data-value="DecimalMode" class="calculator-button bg-zinc-800 text-white hover:bg-zinc-700 flex items-center justify-center rounded-full h-12 w-12 md:h-16 md:w-16 text-sm md:text-xs font-medium transition-all duration-150 ease-in-out p-1 hover:scale-105 active:scale-95">F</button> 
-            <button data-value="/" class="calculator-button bg-orange-500 text-white hover:bg-orange-600 flex items-center justify-center rounded-full h-12 w-12 md:h-16 md:w-16 text-lg md:text-xl font-medium transition-all duration-150 ease-in-out hover:scale-105 active:scale-95">/</button>
-            <button data-value="C" class="calculator-button bg-zinc-400 text-black hover:bg-zinc-300 flex items-center justify-center rounded-full h-12 w-12 md:h-16 md:w-16 text-lg md:text-xl font-medium transition-all duration-150 ease-in-out hover:scale-105 active:scale-95">AC</button>
-            <button data-value="7" class="calculator-button bg-zinc-800 text-white hover:bg-zinc-700 flex items-center justify-center rounded-full h-12 w-12 md:h-16 md:w-16 text-lg md:text-xl font-medium transition-all duration-150 ease-in-out hover:scale-105 active:scale-95">7</button>
-            <button data-value="8" class="calculator-button bg-zinc-800 text-white hover:bg-zinc-700 flex items-center justify-center rounded-full h-12 w-12 md:h-16 md:w-16 text-lg md:text-xl font-medium transition-all duration-150 ease-in-out hover:scale-105 active:scale-95">8</button>
-            <button data-value="9" class="calculator-button bg-zinc-800 text-white hover:bg-zinc-700 flex items-center justify-center rounded-full h-12 w-12 md:h-16 md:w-16 text-lg md:text-xl font-medium transition-all duration-150 ease-in-out hover:scale-105 active:scale-95">9</button>
-            <button data-value="*" class="calculator-button bg-orange-500 text-white hover:bg-orange-600 flex items-center justify-center rounded-full h-12 w-12 md:h-16 md:w-16 text-lg md:text-xl font-medium transition-all duration-150 ease-in-out hover:scale-105 active:scale-95">*</button>
-            <button data-value="Backspace" class="calculator-button bg-zinc-800 text-white hover:bg-zinc-700 flex items-center justify-center rounded-full h-12 w-12 md:h-16 md:w-16 text-lg md:text-xl font-medium transition-all duration-150 ease-in-out hover:scale-105 active:scale-95">
-                <span class="material-icons-outlined text-xl md:text-2xl">backspace</span>
-            </button>
-            <button data-value="4" class="calculator-button bg-zinc-800 text-white hover:bg-zinc-700 flex items-center justify-center rounded-full h-12 w-12 md:h-16 md:w-16 text-lg md:text-xl font-medium transition-all duration-150 ease-in-out hover:scale-105 active:scale-95">4</button>
-            <button data-value="5" class="calculator-button bg-zinc-800 text-white hover:bg-zinc-700 flex items-center justify-center rounded-full h-12 w-12 md:h-16 md:w-16 text-lg md:text-xl font-medium transition-all duration-150 ease-in-out hover:scale-105 active:scale-95">5</button>
-            <button data-value="6" class="calculator-button bg-zinc-800 text-white hover:bg-zinc-700 flex items-center justify-center rounded-full h-12 w-12 md:h-16 md:w-16 text-lg md:text-xl font-medium transition-all duration-150 ease-in-out hover:scale-105 active:scale-95">6</button>
-            <button data-value="-" class="calculator-button bg-orange-500 text-white hover:bg-orange-600 flex items-center justify-center rounded-full h-12 w-12 md:h-16 md:w-16 text-lg md:text-xl font-medium transition-all duration-150 ease-in-out hover:scale-105 active:scale-95">-</button>
-            <button data-value="ToggleSign" class="calculator-button bg-zinc-400 text-black hover:bg-zinc-300 flex items-center justify-center rounded-full h-12 w-12 md:h-16 md:w-16 text-lg md:text-xl font-medium transition-all duration-150 ease-in-out hover:scale-105 active:scale-95">±</button>
-            <button data-value="1" class="calculator-button bg-zinc-800 text-white hover:bg-zinc-700 flex items-center justify-center rounded-full h-12 w-12 md:h-16 md:w-16 text-lg md:text-xl font-medium transition-all duration-150 ease-in-out hover:scale-105 active:scale-95">1</button>
-            <button data-value="2" class="calculator-button bg-zinc-800 text-white hover:bg-zinc-700 flex items-center justify-center rounded-full h-12 w-12 md:h-16 md:w-16 text-lg md:text-xl font-medium transition-all duration-150 ease-in-out hover:scale-105 active:scale-95">2</button>
-            <button data-value="3" class="calculator-button bg-zinc-800 text-white hover:bg-zinc-700 flex items-center justify-center rounded-full h-12 w-12 md:h-16 md:w-16 text-lg md:text-xl font-medium transition-all duration-150 ease-in-out hover:scale-105 active:scale-95">3</button>
-            <button data-value="+" class="calculator-button bg-orange-500 text-white hover:bg-orange-600 flex items-center justify-center rounded-full h-12 w-12 md:h-16 md:w-16 text-lg md:text-xl font-medium transition-all duration-150 ease-in-out hover:scale-105 active:scale-95">+</button>
-            <button data-value="%" class="calculator-button bg-zinc-400 text-black hover:bg-zinc-300 flex items-center justify-center rounded-full h-12 w-12 md:h-16 md:w-16 text-lg md:text-xl font-medium transition-all duration-150 ease-in-out hover:scale-105 active:scale-95">%</button>
-            <button data-value="0" class="calculator-button bg-zinc-800 text-white hover:bg-zinc-700 flex items-center justify-center rounded-full h-12 md:h-16 text-lg md:text-xl font-medium transition-all duration-150 ease-in-out hover:scale-105 active:scale-95 col-span-2">0</button>
-            <button data-value="." class="calculator-button bg-zinc-800 text-white hover:bg-zinc-700 flex items-center justify-center rounded-full h-12 w-12 md:h-16 md:w-16 text-lg md:text-xl font-medium transition-all duration-150 ease-in-out hover:scale-105 active:scale-95">.</button>
-            <button data-value="=" class="calculator-button bg-orange-500 text-white hover:bg-orange-600 flex items-center justify-center rounded-full h-12 md:h-16 text-lg md:text-xl font-medium transition-all duration-150 ease-in-out hover:scale-105 active:scale-95 col-span-2">=</button>
+            <button data-value="(" class="calculator-button bg-zinc-800 text-white hover:bg-zinc-700 flex items-center justify-center rounded-full h-11 w-11 md:h-14 md:w-14 text-md md:text-lg font-medium transition-all duration-150 ease-in-out hover:scale-105 active:scale-95">(</button>
+            <button data-value=")" class="calculator-button bg-zinc-800 text-white hover:bg-zinc-700 flex items-center justify-center rounded-full h-11 w-11 md:h-14 md:w-14 text-md md:text-lg font-medium transition-all duration-150 ease-in-out hover:scale-105 active:scale-95">)</button>
+            <button data-value="mc" class="calculator-button bg-zinc-800 text-white hover:bg-zinc-700 flex items-center justify-center rounded-full h-11 w-11 md:h-14 md:w-14 text-sm md:text-base font-medium transition-all duration-150 ease-in-out hover:scale-105 active:scale-95">mc</button>
+            <button data-value="m+" class="calculator-button bg-zinc-800 text-white hover:bg-zinc-700 flex items-center justify-center rounded-full h-11 w-11 md:h-14 md:w-14 text-sm md:text-base font-medium transition-all duration-150 ease-in-out hover:scale-105 active:scale-95">m+</button>
+            <button data-value="m-" class="calculator-button bg-zinc-800 text-white hover:bg-zinc-700 flex items-center justify-center rounded-full h-11 w-11 md:h-14 md:w-14 text-sm md:text-base font-medium transition-all duration-150 ease-in-out hover:scale-105 active:scale-95">m-</button>
+            <button data-value="mr" class="calculator-button bg-zinc-800 text-white hover:bg-zinc-700 flex items-center justify-center rounded-full h-11 w-11 md:h-14 md:w-14 text-sm md:text-base font-medium transition-all duration-150 ease-in-out hover:scale-105 active:scale-95">mr</button>
+
+            <button id="secondFnButton" data-value="2nd" class="calculator-button bg-zinc-800 text-white hover:bg-zinc-700 flex items-center justify-center rounded-full h-11 w-11 md:h-14 md:w-14 text-xs md:text-sm font-medium transition-all duration-150 ease-in-out hover:scale-105 active:scale-95">2<sup>nd</sup></button>
+            <button data-value="x^2" data-second-value="sqrt" data-second-label-text="√x" class="calculator-button bg-zinc-800 text-white hover:bg-zinc-700 flex items-center justify-center rounded-full h-11 w-11 md:h-14 md:w-14 text-md md:text-lg font-medium transition-all duration-150 ease-in-out hover:scale-105 active:scale-95">x²</button>
+            <button data-value="x^3" data-second-value="cbrt" data-second-label-text="∛x" class="calculator-button bg-zinc-800 text-white hover:bg-zinc-700 flex items-center justify-center rounded-full h-11 w-11 md:h-14 md:w-14 text-md md:text-lg font-medium transition-all duration-150 ease-in-out hover:scale-105 active:scale-95">x³</button>
+            <button data-value="x^y" data-second-value="y_sqrt_x" data-second-label-text="ʸ√x" class="calculator-button bg-zinc-800 text-white hover:bg-zinc-700 flex items-center justify-center rounded-full h-11 w-11 md:h-14 md:w-14 text-md md:text-lg font-medium transition-all duration-150 ease-in-out hover:scale-105 active:scale-95">xʸ</button>
+            <button data-value="e^x" data-second-value="ln" data-second-label-text="ln" class="calculator-button bg-zinc-800 text-white hover:bg-zinc-700 flex items-center justify-center rounded-full h-11 w-11 md:h-14 md:w-14 text-md md:text-lg font-medium transition-all duration-150 ease-in-out hover:scale-105 active:scale-95">eˣ</button>
+            <button data-value="10^x" data-second-value="log10" data-second-label-text="log₁₀" class="calculator-button bg-zinc-800 text-white hover:bg-zinc-700 flex items-center justify-center rounded-full h-11 w-11 md:h-14 md:w-14 text-md md:text-lg font-medium transition-all duration-150 ease-in-out hover:scale-105 active:scale-95">10ˣ</button>
+
+            <button data-value="1/x" class="calculator-button bg-zinc-800 text-white hover:bg-zinc-700 flex items-center justify-center rounded-full h-11 w-11 md:h-14 md:w-14 text-md md:text-lg font-medium transition-all duration-150 ease-in-out hover:scale-105 active:scale-95">¹/x</button>
+            <button data-value="sqrt" data-second-value="x^2" data-second-label-text="x²" class="calculator-button bg-zinc-800 text-white hover:bg-zinc-700 flex items-center justify-center rounded-full h-11 w-11 md:h-14 md:w-14 text-md md:text-lg font-medium transition-all duration-150 ease-in-out hover:scale-105 active:scale-95">√x</button>
+            <button data-value="cbrt" data-second-value="x^3" data-second-label-text="x³" class="calculator-button bg-zinc-800 text-white hover:bg-zinc-700 flex items-center justify-center rounded-full h-11 w-11 md:h-14 md:w-14 text-md md:text-lg font-medium transition-all duration-150 ease-in-out hover:scale-105 active:scale-95">∛x</button>
+            <button data-value="y_sqrt_x" data-second-value="x^y" data-second-label-text="xʸ" class="calculator-button bg-zinc-800 text-white hover:bg-zinc-700 flex items-center justify-center rounded-full h-11 w-11 md:h-14 md:w-14 text-md md:text-lg font-medium transition-all duration-150 ease-in-out hover:scale-105 active:scale-95">ʸ√x</button>
+            <button data-value="ln" data-second-value="e^x" data-second-label-text="eˣ" class="calculator-button bg-zinc-800 text-white hover:bg-zinc-700 flex items-center justify-center rounded-full h-11 w-11 md:h-14 md:w-14 text-md md:text-lg font-medium transition-all duration-150 ease-in-out hover:scale-105 active:scale-95">ln</button>
+            <button data-value="log10" data-second-value="10^x" data-second-label-text="10ˣ" class="calculator-button bg-zinc-800 text-white hover:bg-zinc-700 flex items-center justify-center rounded-full h-11 w-11 md:h-14 md:w-14 text-sm md:text-base font-medium transition-all duration-150 ease-in-out hover:scale-105 active:scale-95">log₁₀</button>
+
+            <button data-value="x!" class="calculator-button bg-zinc-800 text-white hover:bg-zinc-700 flex items-center justify-center rounded-full h-11 w-11 md:h-14 md:w-14 text-md md:text-lg font-medium transition-all duration-150 ease-in-out hover:scale-105 active:scale-95">x!</button>
+            <button data-value="sin" data-second-value="asin" data-second-label-text="sin⁻¹" class="calculator-button bg-zinc-800 text-white hover:bg-zinc-700 flex items-center justify-center rounded-full h-11 w-11 md:h-14 md:w-14 text-sm md:text-base font-medium transition-all duration-150 ease-in-out hover:scale-105 active:scale-95">sin</button>
+            <button data-value="cos" data-second-value="acos" data-second-label-text="cos⁻¹" class="calculator-button bg-zinc-800 text-white hover:bg-zinc-700 flex items-center justify-center rounded-full h-11 w-11 md:h-14 md:w-14 text-sm md:text-base font-medium transition-all duration-150 ease-in-out hover:scale-105 active:scale-95">cos</button>
+            <button data-value="tan" data-second-value="atan" data-second-label-text="tan⁻¹" class="calculator-button bg-zinc-800 text-white hover:bg-zinc-700 flex items-center justify-center rounded-full h-11 w-11 md:h-14 md:w-14 text-sm md:text-base font-medium transition-all duration-150 ease-in-out hover:scale-105 active:scale-95">tan</button>
+            <button data-value="E" class="calculator-button bg-zinc-800 text-white hover:bg-zinc-700 flex items-center justify-center rounded-full h-11 w-11 md:h-14 md:w-14 text-md md:text-lg font-medium transition-all duration-150 ease-in-out hover:scale-105 active:scale-95">e</button>
+            <button data-value="EE" class="calculator-button bg-zinc-800 text-white hover:bg-zinc-700 flex items-center justify-center rounded-full h-11 w-11 md:h-14 md:w-14 text-sm md:text-base font-medium transition-all duration-150 ease-in-out hover:scale-105 active:scale-95">EE</button>
+            
+            <button data-value="Rand" class="calculator-button bg-zinc-800 text-white hover:bg-zinc-700 flex items-center justify-center rounded-full h-11 w-11 md:h-14 md:w-14 text-sm md:text-base font-medium transition-all duration-150 ease-in-out hover:scale-105 active:scale-95">Rand</button> 
+            <button data-value="sinh" data-second-value="asinh" data-second-label-text="sinh⁻¹" class="calculator-button bg-zinc-800 text-white hover:bg-zinc-700 flex items-center justify-center rounded-full h-11 w-11 md:h-14 md:w-14 text-xs md:text-sm font-medium transition-all duration-150 ease-in-out hover:scale-105 active:scale-95">sinh</button>
+            <button data-value="cosh" data-second-value="acosh" data-second-label-text="cosh⁻¹" class="calculator-button bg-zinc-800 text-white hover:bg-zinc-700 flex items-center justify-center rounded-full h-11 w-11 md:h-14 md:w-14 text-xs md:text-sm font-medium transition-all duration-150 ease-in-out hover:scale-105 active:scale-95">cosh</button>
+            <button data-value="tanh" data-second-value="atanh" data-second-label-text="tanh⁻¹" class="calculator-button bg-zinc-800 text-white hover:bg-zinc-700 flex items-center justify-center rounded-full h-11 w-11 md:h-14 md:w-14 text-xs md:text-sm font-medium transition-all duration-150 ease-in-out hover:scale-105 active:scale-95">tanh</button>
+            <button data-value="PI" class="calculator-button bg-zinc-800 text-white hover:bg-zinc-700 flex items-center justify-center rounded-full h-11 w-11 md:h-14 md:w-14 text-md md:text-lg font-medium transition-all duration-150 ease-in-out hover:scale-105 active:scale-95">π</button>
+            <button id="radDegButton" data-value="Rad" class="calculator-button bg-zinc-800 text-white hover:bg-zinc-700 flex items-center justify-center rounded-full h-11 w-11 md:h-14 md:w-14 text-sm md:text-base font-medium transition-all duration-150 ease-in-out hover:scale-105 active:scale-95">Rad</button>
+
+            <button data-value="C" class="calculator-button bg-zinc-400 text-black hover:bg-zinc-300 flex items-center justify-center rounded-full h-11 w-11 md:h-14 md:w-14 text-md md:text-lg font-medium transition-all duration-150 ease-in-out hover:scale-105 active:scale-95">AC</button>
+            <button data-value="Backspace" class="calculator-button bg-zinc-400 text-black hover:bg-zinc-300 flex items-center justify-center rounded-full h-11 w-11 md:h-14 md:w-14 text-md md:text-lg font-medium transition-all duration-150 ease-in-out hover:scale-105 active:scale-95">
+                <span class="material-icons-outlined text-lg md:text-xl">backspace</span></button>
+            <button data-value="ToggleSign" class="calculator-button bg-zinc-400 text-black hover:bg-zinc-300 flex items-center justify-center rounded-full h-11 w-11 md:h-14 md:w-14 text-md md:text-lg font-medium transition-all duration-150 ease-in-out hover:scale-105 active:scale-95">±</button>
+            <button data-value="%" class="calculator-button bg-zinc-400 text-black hover:bg-zinc-300 flex items-center justify-center rounded-full h-11 w-11 md:h-14 md:w-14 text-md md:text-lg font-medium transition-all duration-150 ease-in-out hover:scale-105 active:scale-95">%</button>
+            <button data-value="=" class="calculator-button bg-orange-500 text-white hover:bg-orange-600 flex items-center justify-center rounded-full h-11 md:h-14 text-md md:text-lg font-medium transition-all duration-150 ease-in-out hover:scale-105 active:scale-95 col-span-2">=</button>
+            
+            <div class="col-span-1"></div> 
+            <button data-value="7" class="calculator-button bg-zinc-800 text-white hover:bg-zinc-700 flex items-center justify-center rounded-full h-11 w-11 md:h-14 md:w-14 text-md md:text-lg font-medium transition-all duration-150 ease-in-out hover:scale-105 active:scale-95">7</button>
+            <button data-value="8" class="calculator-button bg-zinc-800 text-white hover:bg-zinc-700 flex items-center justify-center rounded-full h-11 w-11 md:h-14 md:w-14 text-md md:text-lg font-medium transition-all duration-150 ease-in-out hover:scale-105 active:scale-95">8</button>
+            <button data-value="9" class="calculator-button bg-zinc-800 text-white hover:bg-zinc-700 flex items-center justify-center rounded-full h-11 w-11 md:h-14 md:w-14 text-md md:text-lg font-medium transition-all duration-150 ease-in-out hover:scale-105 active:scale-95">9</button>
+            <button data-value="/" class="calculator-button bg-orange-500 text-white hover:bg-orange-600 flex items-center justify-center rounded-full h-11 w-11 md:h-14 md:w-14 text-md md:text-lg font-medium transition-all duration-150 ease-in-out hover:scale-105 active:scale-95">/</button>
+            <div class="col-span-1"></div> 
+
+            <div class="col-span-1"></div> 
+            <button data-value="4" class="calculator-button bg-zinc-800 text-white hover:bg-zinc-700 flex items-center justify-center rounded-full h-11 w-11 md:h-14 md:w-14 text-md md:text-lg font-medium transition-all duration-150 ease-in-out hover:scale-105 active:scale-95">4</button>
+            <button data-value="5" class="calculator-button bg-zinc-800 text-white hover:bg-zinc-700 flex items-center justify-center rounded-full h-11 w-11 md:h-14 md:w-14 text-md md:text-lg font-medium transition-all duration-150 ease-in-out hover:scale-105 active:scale-95">5</button>
+            <button data-value="6" class="calculator-button bg-zinc-800 text-white hover:bg-zinc-700 flex items-center justify-center rounded-full h-11 w-11 md:h-14 md:w-14 text-md md:text-lg font-medium transition-all duration-150 ease-in-out hover:scale-105 active:scale-95">6</button>
+            <button data-value="*" class="calculator-button bg-orange-500 text-white hover:bg-orange-600 flex items-center justify-center rounded-full h-11 w-11 md:h-14 md:w-14 text-md md:text-lg font-medium transition-all duration-150 ease-in-out hover:scale-105 active:scale-95">×</button>
+            <div class="col-span-1"></div> 
+
+            <div class="col-span-1"></div> 
+            <button data-value="1" class="calculator-button bg-zinc-800 text-white hover:bg-zinc-700 flex items-center justify-center rounded-full h-11 w-11 md:h-14 md:w-14 text-md md:text-lg font-medium transition-all duration-150 ease-in-out hover:scale-105 active:scale-95">1</button>
+            <button data-value="2" class="calculator-button bg-zinc-800 text-white hover:bg-zinc-700 flex items-center justify-center rounded-full h-11 w-11 md:h-14 md:w-14 text-md md:text-lg font-medium transition-all duration-150 ease-in-out hover:scale-105 active:scale-95">2</button>
+            <button data-value="3" class="calculator-button bg-zinc-800 text-white hover:bg-zinc-700 flex items-center justify-center rounded-full h-11 w-11 md:h-14 md:w-14 text-md md:text-lg font-medium transition-all duration-150 ease-in-out hover:scale-105 active:scale-95">3</button>
+            <button data-value="-" class="calculator-button bg-orange-500 text-white hover:bg-orange-600 flex items-center justify-center rounded-full h-11 w-11 md:h-14 md:w-14 text-md md:text-lg font-medium transition-all duration-150 ease-in-out hover:scale-105 active:scale-95">−</button>
+            <div class="col-span-1"></div> 
+            
+            <div class="col-span-1"></div> 
+            <button id="decimalModeButton" data-value="DecimalMode" class="calculator-button bg-zinc-800 text-white hover:bg-zinc-700 flex items-center justify-center rounded-full h-11 w-11 md:h-14 md:w-14 text-xs md:text-sm font-medium transition-all duration-150 ease-in-out p-1 hover:scale-105 active:scale-95">F</button>
+            <button data-value="0" class="calculator-button bg-zinc-800 text-white hover:bg-zinc-700 flex items-center justify-center rounded-full h-11 w-11 md:h-14 md:w-14 text-md md:text-lg font-medium transition-all duration-150 ease-in-out hover:scale-105 active:scale-95">0</button>
+            <button data-value="." class="calculator-button bg-zinc-800 text-white hover:bg-zinc-700 flex items-center justify-center rounded-full h-11 w-11 md:h-14 md:w-14 text-md md:text-lg font-medium transition-all duration-150 ease-in-out hover:scale-105 active:scale-95">.</button>
+            <button data-value="+" class="calculator-button bg-orange-500 text-white hover:bg-orange-600 flex items-center justify-center rounded-full h-11 w-11 md:h-14 md:w-14 text-md md:text-lg font-medium transition-all duration-150 ease-in-out hover:scale-105 active:scale-95">+</button>
+            <div class="col-span-1"></div> 
         </div>
     </div>
 
@@ -140,7 +156,7 @@
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const display = document.getElementById('display');
-            const buttons = document.querySelectorAll('.calculator-grid button');
+            const buttons = document.querySelectorAll('.calculator-grid button'); 
             const secondFnButton = document.getElementById('secondFnButton');
             const radDegButton = document.getElementById('radDegButton');
             const decimalModeButton = document.getElementById('decimalModeButton'); 
@@ -158,10 +174,8 @@
             let currentDecimalModeIndex = 0; 
             let decimalPlaces = decimalModes[currentDecimalModeIndex]; 
 
-            // Define classes for 2nd button states
             const secondFnDefaultClasses = ['bg-zinc-800', 'text-white', 'hover:bg-zinc-700'];
             const secondFnActiveClasses = ['bg-sky-500', 'text-white', 'hover:bg-sky-400'];
-
 
             function showMessage(message) {
                 messageBoxText.textContent = message;
@@ -191,7 +205,7 @@
                 return radians * (180 / Math.PI);
             }
             
-            function log2(n) {
+            function log2(n) { 
                 if (n <= 0) return NaN;
                 return Math.log(n) / Math.log(2);
             }
@@ -265,7 +279,6 @@
                     .replace(/∛\(/g, 'Math.cbrt(')
                     .replace(/ln\(/g, 'Math.log(')
                     .replace(/log₁₀\(/g, 'Math.log10(')
-                    .replace(/log₂\(/g, 'log2(');
 
                 const trigFuncs = {
                     'sin': 'Math.sin', 'cos': 'Math.cos', 'tan': 'Math.tan',
@@ -282,7 +295,6 @@
                            .replace(/\^/g, '**'); 
                 return expr;
             }
-
 
             function handleOperation(buttonElement) { 
                 let actionValue = buttonElement.dataset.value; 
@@ -308,18 +320,17 @@
                     justEvaluated = false;
                 }
 
-
                 switch (actionValue) {
                     case 'C': 
                         currentExpression = '';
                         justEvaluated = false;
                         break;
-                    case 'Backspace':
+                    case 'Backspace': 
                         if (justEvaluated) { 
                             currentExpression = '';
                             justEvaluated = false;
                         } else if (currentExpression.endsWith('(') && currentExpression.length > 1) {
-                            const funcPatterns = ['Math.sin(', 'Math.cos(', 'Math.tan(', 'Math.asin(', 'Math.acos(', 'Math.atan(', 'Math.sinh(', 'Math.cosh(', 'Math.tanh(', 'Math.asinh(', 'Math.acosh(', 'Math.atanh(', 'Math.sqrt(', 'Math.cbrt(', 'Math.log(', 'Math.log10(', 'log2(', 'factorial('];
+                            const funcPatterns = ['Math.sin(', 'Math.cos(', 'Math.tan(', 'Math.asin(', 'Math.acos(', 'Math.atan(', 'Math.sinh(', 'Math.cosh(', 'Math.tanh(', 'Math.asinh(', 'Math.acosh(', 'Math.atanh(', 'Math.sqrt(', 'Math.cbrt(', 'Math.log(', 'Math.log10(', 'factorial('];
                             let foundFunc = false;
                             for (const pattern of funcPatterns) {
                                 if (currentExpression.endsWith(pattern)) {
@@ -338,15 +349,10 @@
                             currentExpression = currentExpression.slice(0, -1);
                         }
                         break;
-                    case '(':
-                    case ')':
-                    case '.':
+                    case '(': case ')': case '.':
                         appendToExpression(actionValue);
                         break;
-                    case '+':
-                    case '-':
-                    case '*':
-                    case '/':
+                    case '+': case '-': case '*': case '/':
                         if (currentExpression === '' && actionValue !== '-') { 
                             break;
                         }
@@ -403,7 +409,6 @@
                                  });
                             });
 
-
                             const result = eval(evalFriendlyExpression);
                             if (isNaN(result) || !isFinite(result)) {
                                 showMessage('Error: Result is undefined or infinite');
@@ -423,9 +428,17 @@
                     case 'm-': 
                         try { memory -= parseFloat(eval(getExpressionForEval() || '0')); } catch { showMessage("Error in M- expr");}
                         break;
+                    case 'mr': 
+                        currentExpression = String(memory);
+                        justEvaluated = true; 
+                        break;
                     case 'PI': appendToExpression('π'); break;
                     case 'E': appendToExpression('e'); break; 
                     case 'EE': appendToExpression('e'); break; 
+                    case 'Rand': 
+                        currentExpression = String(Math.random());
+                        justEvaluated = true;
+                        break;
                     case 'DecimalMode':
                         currentDecimalModeIndex = (currentDecimalModeIndex + 1) % decimalModes.length;
                         decimalPlaces = decimalModes[currentDecimalModeIndex];
@@ -452,12 +465,11 @@
                         currentExpression = `(1/(${getExpressionForEval() || '0'}))`; 
                         handleOperation({dataset:{value:'='}}); 
                         break;
-                    case 'sqrt': appendToExpression('√('); break;
-                    case 'cbrt': appendToExpression('∛('); break;
+                    case 'sqrt': appendToExpression('√('); break; 
+                    case 'cbrt': appendToExpression('∛('); break; 
                     case 'y_sqrt_x': appendToExpression('**(1/'); break; 
-                    case 'ln': appendToExpression('ln('); break;
-                    case 'log10': appendToExpression('log₁₀('); break;
-                    case 'log2': appendToExpression('log₂('); break; 
+                    case 'ln': appendToExpression('ln('); break; 
+                    case 'log10': appendToExpression('log₁₀('); break; 
                     case 'x!': 
                         const numForFactorial = getLastNumberSegment();
                         if (numForFactorial) {
@@ -524,7 +536,6 @@
                         }
                         break;
                     case '2nd': 
-                        // This is handled by the dedicated listener for secondFnButton
                         break;
 
                 }
@@ -532,6 +543,8 @@
             }
             
             buttons.forEach(button => {
+                if (!button.dataset.value) return; 
+
                 const value = button.dataset.value;
                 const secondValue = button.dataset.secondValue;
                 let primaryHTML = button.innerHTML; 
@@ -539,23 +552,7 @@
                 button.dataset.primaryLabel = primaryHTML; 
 
                 if (secondValue) {
-                    let secondLabelHTML = secondValue; 
-                    if (value === "x^2" && secondValue === "x^3") secondLabelHTML = "x³";
-                    else if (value === "x^3" && secondValue === "x^y") secondLabelHTML = "xʸ";
-                    else if (value === "x^y" && secondValue === "y_sqrt_x") secondLabelHTML = "ʸ√x";
-                    else if (value === "e^x" && secondValue === "10^x") secondLabelHTML = "10ˣ";
-                    else if (value === "10^x" && secondValue === "1/x") secondLabelHTML = "¹/x";
-                    else if (value === "1/x" && secondValue === "sqrt") secondLabelHTML = "√x";
-                    else if (value === "sqrt" && secondValue === "cbrt") secondLabelHTML = "∛x";
-                    else if (value === "cbrt" && secondValue === "y_sqrt_x") secondLabelHTML = "ʸ√x"; 
-                    else if (value === "ln" && secondValue === "log10") secondLabelHTML = "log₁₀";
-                    else if (value === "log10" && secondValue === "log2") secondLabelHTML = "log₂";
-                    else if (value === "sin" && secondValue === "asin") secondLabelHTML = "sin<sup>-1</sup>";
-                    else if (value === "cos" && secondValue === "acos") secondLabelHTML = "cos<sup>-1</sup>";
-                    else if (value === "tan" && secondValue === "atan") secondLabelHTML = "tan<sup>-1</sup>";
-                    else if (value === "sinh" && secondValue === "asinh") secondLabelHTML = "sinh<sup>-1</sup>";
-                    else if (value === "cosh" && secondValue === "acosh") secondLabelHTML = "cosh<sup>-1</sup>";
-                    else if (value === "tanh" && secondValue === "atanh") secondLabelHTML = "tanh<sup>-1</sup>";
+                    let secondLabelHTML = button.dataset.secondLabelText || secondValue; 
                     button.dataset.secondLabelText = secondLabelHTML; 
                 }
                 if (button.id !== 'secondFnButton') { 
@@ -575,10 +572,10 @@
                     }
 
                     buttons.forEach(btn => {
-                        if (btn.id === 'secondFnButton') return; 
+                        if (!btn.dataset.value || btn.id === 'secondFnButton') return; 
                         const primaryLabel = btn.dataset.primaryLabel; 
                         const secondLabel = btn.dataset.secondLabelText; 
-                        if (isSecondFunctionActive && secondLabel) {
+                        if (isSecondFunctionActive && secondLabel && btn.dataset.secondValue) { 
                             btn.innerHTML = secondLabel;
                         } else if (primaryLabel) {
                             btn.innerHTML = primaryLabel;
